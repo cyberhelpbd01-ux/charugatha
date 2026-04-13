@@ -1,1 +1,653 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>চারুগাথা · Charugatha</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Noto+Sans+Bengali:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --petal-pink: #fce4ec;
+    --blush:      #f8bbd0;
+    --rose:       #f48fb1;
+    --deep-rose:  #e91e63;
+    --leaf:       #2e7d52;
+    --mint:       #43a870;
+    --sage:       #81c99a;
+    --cream:      #fff8f9;
+    --dark:       #1a1a1a;
+    --soft-shadow: rgba(233,30,99,0.12);
+  }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    min-height: 100%;
+    font-family: 'Noto Sans Bengali', sans-serif;
+    background: var(--petal-pink);
+    color: var(--dark);
+    overflow-x: hidden;
+  }
+
+  /* ── PETAL CANVAS ── */
+  #petals { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+
+  /* ── FLOATING BACKGROUND ELEMENTS ── */
+  .bg-elements {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .bg-item {
+    position: absolute;
+    font-size: var(--sz, 2rem);
+    opacity: 0.07;
+    animation: floatItem var(--dur, 18s) ease-in-out infinite;
+    animation-delay: var(--del, 0s);
+    filter: saturate(0.3);
+  }
+
+  @keyframes floatItem {
+    0%, 100% { transform: translate(0,0) rotate(var(--rot0,0deg)) scale(1); }
+    33%       { transform: translate(var(--mx,15px), var(--my,-20px)) rotate(var(--rot1,10deg)) scale(1.05); }
+    66%       { transform: translate(var(--mx2,-10px), var(--my2,10px)) rotate(var(--rot2,-5deg)) scale(0.97); }
+  }
+
+  /* ── MESH GRADIENT BG ── */
+  .mesh {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(248,187,208,0.6) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 10%, rgba(200,230,210,0.4) 0%, transparent 40%),
+      radial-gradient(ellipse at 60% 80%, rgba(244,143,177,0.3) 0%, transparent 50%),
+      radial-gradient(ellipse at 10% 80%, rgba(129,201,154,0.25) 0%, transparent 45%),
+      var(--petal-pink);
+    animation: mesh-shift 15s ease-in-out infinite alternate;
+  }
+
+  @keyframes mesh-shift {
+    from { filter: hue-rotate(0deg) brightness(1); }
+    to   { filter: hue-rotate(8deg) brightness(1.03); }
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 20px 70px;
+  }
+
+  /* ── LOGO ── */
+  .logo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+    animation: bloom-in 1s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes bloom-in {
+    from { opacity: 0; transform: scale(0.6) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .logo-wrap {
+    position: relative;
+    width: 140px; height: 140px;
+    margin-bottom: 0;
+  }
+
+  /* Spinning petal ring */
+  .petal-ring {
+    position: absolute;
+    inset: -16px;
+    animation: spin-slow 25s linear infinite;
+  }
+
+  .petal-ring svg { width: 100%; height: 100%; }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .petal-ring-2 {
+    position: absolute;
+    inset: -28px;
+    animation: spin-slow 40s linear infinite reverse;
+    opacity: 0.5;
+  }
+
+  .logo-img {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow:
+      0 0 0 6px rgba(244,143,177,0.3),
+      0 8px 40px rgba(233,30,99,0.2),
+      0 2px 12px rgba(0,0,0,0.08);
+    display: block;
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(135deg, var(--blush), var(--sage));
+  }
+
+  .logo-fallback {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 6px rgba(244,143,177,0.3), 0 8px 40px rgba(233,30,99,0.2);
+    background: linear-gradient(135deg, var(--blush) 0%, var(--sage) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem;
+    position: relative; z-index: 2;
+  }
+
+  .logo-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(233,30,99,0.2) 0%, transparent 70%);
+    animation: logo-pulse 3s ease-in-out infinite;
+    z-index: 1;
+  }
+
+  @keyframes logo-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50%       { transform: scale(1.2); opacity: 1; }
+  }
+
+  /* ── BRAND NAME ── */
+  .brand-bengali {
+    font-family: 'Noto Sans Bengali', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.9rem, 6vw, 2.8rem);
+    color: var(--leaf);
+    letter-spacing: 0.04em;
+    text-align: center;
+    margin-top: 26px;
+    line-height: 1;
+    animation: fade-rise 0.8s ease-out both;
+    animation-delay: 0.3s;
+    text-shadow: 0 2px 12px rgba(46,125,82,0.15);
+  }
+
+  .brand-roman {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--deep-rose);
+    letter-spacing: 0.28em;
+    text-align: center;
+    margin-top: 6px;
+    animation: fade-rise 0.8s ease-out both;
+    animation-delay: 0.5s;
+  }
+
+  @keyframes fade-rise {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TAGLINE ── */
+  .tagline {
+    margin-top: 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(46,125,82,0.55);
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    animation: fade-rise 0.8s ease-out both;
+    animation-delay: 0.7s;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 280px;
+    margin: 26px auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fade-rise 0.8s ease-out both;
+    animation-delay: 0.8s;
+  }
+
+  .div-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--rose), transparent);
+  }
+
+  .div-flower {
+    font-size: 1rem;
+    animation: spin-slow 12s linear infinite;
+    display: inline-block;
+  }
+
+  /* ── PRODUCT PILLS ── */
+  .products-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    max-width: 400px;
+    margin-bottom: 26px;
+    animation: fade-rise 0.8s ease-out both;
+    animation-delay: 0.9s;
+  }
+
+  .product-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 13px;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(233,30,99,0.15);
+    font-size: 0.7rem;
+    color: var(--leaf);
+    letter-spacing: 0.06em;
+    backdrop-filter: blur(8px);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.78rem;
+    transition: all 0.3s ease;
+  }
+
+  .product-pill:hover {
+    background: rgba(255,255,255,0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px var(--soft-shadow);
+  }
+
+  .product-pill .pill-icon { font-size: 0.85rem; }
+
+  /* ── LINK CARDS ── */
+  .links-wrap {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .link-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 17px 22px;
+    text-decoration: none;
+    color: var(--dark);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1.5px solid var(--card-border, rgba(255,255,255,0.7));
+    background: var(--card-bg, rgba(255,255,255,0.55));
+    backdrop-filter: blur(16px);
+    transition: transform 0.35s cubic-bezier(.34,1.56,.64,1),
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+    animation: card-bloom 0.7s cubic-bezier(.34,1.56,.64,1) both;
+    cursor: pointer;
+  }
+
+  .link-card:nth-child(1) { animation-delay: 1.0s; }
+  .link-card:nth-child(2) { animation-delay: 1.15s; }
+
+  @keyframes card-bloom {
+    from { opacity: 0; transform: translateY(28px) scale(0.93); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Shimmer sweep */
+  .link-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.55s ease;
+  }
+
+  .link-card:hover::after { left: 160%; }
+
+  .link-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: var(--card-accent);
+    box-shadow: 0 10px 40px var(--card-shadow), 0 0 0 1px var(--card-accent);
+  }
+
+  /* card themes */
+  .card-fb {
+    --card-accent: #1877F2;
+    --card-shadow: rgba(24,119,242,0.2);
+    --card-bg: rgba(232,242,255,0.55);
+    --card-border: rgba(24,119,242,0.2);
+  }
+
+  .card-ig {
+    --card-accent: #e91e8c;
+    --card-shadow: rgba(233,30,99,0.2);
+    --card-bg: rgba(255,232,242,0.55);
+    --card-border: rgba(233,30,99,0.2);
+  }
+
+  .card-icon {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+  }
+
+  .link-card:hover .card-icon { transform: scale(1.12) rotate(-6deg); }
+
+  .card-fb .card-icon { background: rgba(24,119,242,0.12); border: 1px solid rgba(24,119,242,0.25); }
+  .card-ig .card-icon { background: rgba(233,30,99,0.1); border: 1px solid rgba(233,30,99,0.25); }
+
+  .card-text { position: relative; z-index: 1; flex: 1; }
+
+  .card-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    font-style: italic;
+    color: rgba(46,125,82,0.6);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+  }
+
+  .card-title {
+    font-family: 'Noto Sans Bengali', sans-serif;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--dark);
+  }
+
+  .card-arrow {
+    position: relative; z-index: 1;
+    font-size: 1.1rem;
+    color: rgba(0,0,0,0.25);
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .link-card:hover .card-arrow {
+    transform: translateX(5px);
+    color: var(--card-accent);
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 46px;
+    text-align: center;
+    animation: fade-rise 0.8s ease-out both;
+    animation-delay: 1.4s;
+  }
+
+  .footer-flowers {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .footer-flower {
+    font-size: 1rem;
+    animation: swing var(--sw, 3s) ease-in-out infinite;
+    animation-delay: var(--swdel, 0s);
+  }
+
+  @keyframes swing {
+    0%, 100% { transform: rotate(-10deg) scale(1); }
+    50%       { transform: rotate(10deg) scale(1.1); }
+  }
+
+  .footer-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: rgba(46,125,82,0.45);
+    text-transform: uppercase;
+    font-style: italic;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .container { padding: 38px 16px 60px; }
+    .logo-img, .logo-fallback { width: 120px; height: 120px; }
+    .logo-wrap { width: 120px; height: 120px; }
+    .links-wrap { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Layered background -->
+<div class="mesh"></div>
+
+<!-- Floating handmade product elements -->
+<div class="bg-elements">
+  <div class="bg-item" style="--sz:3.5rem;top:5%;left:3%;--dur:20s;--del:0s;--mx:20px;--my:-25px;--mx2:-15px;--my2:18px;--rot0:5deg;--rot1:20deg;--rot2:-8deg">🌸</div>
+  <div class="bg-item" style="--sz:2.5rem;top:12%;right:6%;--dur:17s;--del:3s;--mx:-18px;--my:-30px;--mx2:12px;--my2:20px;--rot0:-5deg;--rot1:-15deg;--rot2:10deg">🕯️</div>
+  <div class="bg-item" style="--sz:2rem;top:25%;left:8%;--dur:22s;--del:5s;--mx:25px;--my:15px;--mx2:-20px;--my2:-10px;--rot0:0deg;--rot1:12deg;--rot2:-6deg">💍</div>
+  <div class="bg-item" style="--sz:2.8rem;top:30%;right:4%;--dur:19s;--del:7s;--mx:-22px;--my:-18px;--mx2:15px;--my2:22px;--rot0:10deg;--rot1:-10deg;--rot2:15deg">🌺</div>
+  <div class="bg-item" style="--sz:2.2rem;top:55%;left:4%;--dur:25s;--del:2s;--mx:18px;--my:25px;--mx2:-10px;--my2:-15px;--rot0:-8deg;--rot1:15deg;--rot2:-12deg">🔑</div>
+  <div class="bg-item" style="--sz:2.6rem;top:60%;right:5%;--dur:16s;--del:9s;--mx:-15px;--my:-22px;--mx2:20px;--my2:12px;--rot0:3deg;--rot1:-18deg;--rot2:8deg">💐</div>
+  <div class="bg-item" style="--sz:1.8rem;top:75%;left:7%;--dur:21s;--del:4s;--mx:22px;--my:-15px;--mx2:-18px;--my2:20px;--rot0:-3deg;--rot1:10deg;--rot2:-15deg">📿</div>
+  <div class="bg-item" style="--sz:2rem;top:80%;right:8%;--dur:18s;--del:11s;--mx:-20px;--my:18px;--mx2:15px;--my2:-22px;--rot0:6deg;--rot1:-12deg;--rot2:9deg">🌷</div>
+  <div class="bg-item" style="--sz:1.6rem;top:88%;left:30%;--dur:23s;--del:6s;--mx:12px;--my:-20px;--mx2:-15px;--my2:15px;--rot0:-10deg;--rot1:20deg;--rot2:-5deg">💎</div>
+  <div class="bg-item" style="--sz:2.4rem;top:45%;left:50%;--dur:27s;--del:1s;--mx:-25px;--my:-20px;--mx2:20px;--my2:25px;--rot0:5deg;--rot1:-8deg;--rot2:12deg">🌼</div>
+</div>
+
+<!-- Falling petals canvas -->
+<canvas id="petals"></canvas>
+
+<div class="container">
+
+  <!-- LOGO -->
+  <div class="logo-section">
+    <div class="logo-wrap">
+      <!-- Outer petal ring -->
+      <div class="petal-ring">
+        <svg viewBox="0 0 172 172" xmlns="http://www.w3.org/2000/svg">
+          <g fill="none">
+            <!-- 8 petal shapes around the circle -->
+            <ellipse cx="86" cy="10" rx="5" ry="10" fill="rgba(233,30,99,0.5)" transform="rotate(0 86 86)"/>
+            <ellipse cx="86" cy="10" rx="5" ry="10" fill="rgba(233,30,99,0.45)" transform="rotate(45 86 86)"/>
+            <ellipse cx="86" cy="10" rx="5" ry="10" fill="rgba(67,168,112,0.5)" transform="rotate(90 86 86)"/>
+            <ellipse cx="86" cy="10" rx="5" ry="10" fill="rgba(233,30,99,0.45)" transform="rotate(135 86 86)"/>
+            <ellipse cx="86" cy="10" rx="5" ry="10" fill="rgba(233,30,99,0.5)" transform="rotate(180 86 86)"/>
+            <ellipse cx="86" cy="10" rx="5" ry="10" fill="rgba(67,168,112,0.45)" transform="rotate(225 86 86)"/>
+            <ellipse cx="86" cy="10" rx="5" ry="10" fill="rgba(233,30,99,0.5)" transform="rotate(270 86 86)"/>
+            <ellipse cx="86" cy="10" rx="5" ry="10" fill="rgba(233,30,99,0.45)" transform="rotate(315 86 86)"/>
+            <circle cx="86" cy="86" r="60" stroke="rgba(233,30,99,0.2)" stroke-width="1" fill="none" stroke-dasharray="4 6"/>
+          </g>
+        </svg>
+      </div>
+      <!-- Inner ring -->
+      <div class="petal-ring-2">
+        <svg viewBox="0 0 196 196" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="98" cy="98" r="90" stroke="rgba(67,168,112,0.18)" stroke-width="1" fill="none" stroke-dasharray="2 8"/>
+          <circle cx="98" cy="8" r="4" fill="rgba(67,168,112,0.4)"/>
+          <circle cx="168" cy="168" r="3" fill="rgba(233,30,99,0.35)"/>
+          <circle cx="28" cy="168" r="3" fill="rgba(67,168,112,0.35)"/>
+        </svg>
+      </div>
+      <div class="logo-pulse"></div>
+      <img class="logo-img" src="/mnt/user-data/uploads/1776094475407_image.png" alt="চারুগাথা"
+           onerror="this.style.display='none';document.querySelector('.logo-fallback').style.display='flex'">
+      <div class="logo-fallback" style="display:none">🌸</div>
+    </div>
+
+    <h1 class="brand-bengali">চারুগাথা</h1>
+    <p class="brand-roman">Charugatha</p>
+    <p class="tagline">Handcrafted with love · হাতে বোনা ভালোবাসা</p>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="divider">
+    <div class="div-line"></div>
+    <span class="div-flower">✿</span>
+    <div class="div-line"></div>
+  </div>
+
+  <!-- PRODUCT PILLS -->
+  <div class="products-row">
+    <div class="product-pill"><span class="pill-icon">💐</span> Flower Bouquet</div>
+    <div class="product-pill"><span class="pill-icon">🔑</span> Key Chain</div>
+    <div class="product-pill"><span class="pill-icon">🕯️</span> Candles</div>
+    <div class="product-pill"><span class="pill-icon">📿</span> Bangles</div>
+    <div class="product-pill"><span class="pill-icon">💍</span> Rings</div>
+    <div class="product-pill"><span class="pill-icon">✨</span> Earrings</div>
+    <div class="product-pill"><span class="pill-icon">💎</span> Nose-pin</div>
+  </div>
+
+  <!-- LINKS -->
+  <div class="links-wrap">
+
+    <a href="https://www.facebook.com/profile.php?id=61580262994881" target="_blank" rel="noopener" class="link-card card-fb">
+      <div class="card-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-label">Follow us on</div>
+        <div class="card-title">Facebook Page</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a href="https://www.instagram.com/charugatha_" target="_blank" rel="noopener" class="link-card card-ig">
+      <div class="card-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="url(#ig2)">
+          <defs>
+            <linearGradient id="ig2" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f09433"/>
+              <stop offset="30%" stop-color="#e6683c"/>
+              <stop offset="55%" stop-color="#dc2743"/>
+              <stop offset="75%" stop-color="#cc2366"/>
+              <stop offset="100%" stop-color="#bc1888"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+      </div>
+      <div class="card-text">
+        <div class="card-label">Follow us on</div>
+        <div class="card-title">Instagram</div>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-flowers">
+      <span class="footer-flower" style="--sw:2.8s;--swdel:0s">🌸</span>
+      <span class="footer-flower" style="--sw:3.3s;--swdel:0.5s">🌿</span>
+      <span class="footer-flower" style="--sw:2.5s;--swdel:1s">🌸</span>
+      <span class="footer-flower" style="--sw:3.6s;--swdel:0.3s">🌿</span>
+      <span class="footer-flower" style="--sw:2.9s;--swdel:0.8s">🌸</span>
+    </div>
+    <p class="footer-text">চারুগাথা · Handmade with ♡ · Bangladesh</p>
+  </div>
+
+</div>
+
+<script>
+// ── FALLING PETALS ──
+const canvas = document.getElementById('petals');
+const ctx = canvas.getContext('2d');
+let petals = [];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+const colors = [
+  'rgba(233,30,99,0.18)',
+  'rgba(244,143,177,0.22)',
+  'rgba(248,187,208,0.28)',
+  'rgba(67,168,112,0.15)',
+  'rgba(129,201,154,0.2)',
+  'rgba(255,182,193,0.25)',
+];
+
+function spawnPetal() {
+  return {
+    x: Math.random() * canvas.width,
+    y: -20,
+    r: Math.random() * 8 + 4,
+    rx: Math.random() * 6 + 3,
+    ry: Math.random() * 4 + 2,
+    vx: (Math.random() - 0.5) * 1.2,
+    vy: Math.random() * 1.2 + 0.5,
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.04,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    wobble: Math.random() * Math.PI * 2,
+    wobbleSpeed: Math.random() * 0.03 + 0.01,
+  };
+}
+
+function initPetals() {
+  petals = [];
+  for (let i = 0; i < 30; i++) {
+    const p = spawnPetal();
+    p.y = Math.random() * canvas.height;
+    petals.push(p);
+  }
+}
+
+function drawPetal(p) {
+  ctx.save();
+  ctx.translate(p.x, p.y);
+  ctx.rotate(p.rot);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, p.rx, p.ry, 0, 0, Math.PI * 2);
+  ctx.fillStyle = p.color;
+  ctx.fill();
+  ctx.restore();
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  petals.forEach(p => {
+    p.wobble += p.wobbleSpeed;
+    p.x += p.vx + Math.sin(p.wobble) * 0.5;
+    p.y += p.vy;
+    p.rot += p.vrot;
+    if (p.y > canvas.height + 20) {
+      Object.assign(p, spawnPetal());
+    }
+    drawPetal(p);
+  });
+  // Occasionally add more
+  if (petals.length < 35 && Math.random() < 0.02) petals.push(spawnPetal());
+  requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', () => { resize(); initPetals(); });
+resize();
+initPetals();
+animate();
+</script>
+
+</body>
+</html>
